@@ -3,3 +3,4 @@
 app/env
 app/.env
 app/__pycache__
+app/migrations
