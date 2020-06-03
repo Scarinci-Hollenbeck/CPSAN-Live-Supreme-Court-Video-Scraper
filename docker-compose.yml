@@ -1,21 +1,14 @@
 version: '3'
-services:
-  web:
-      build: app/
-      command: gunicorn -b 0.0.0.0:8000 todosapp.wsgi:application
-      depends_on:
-        - database
-      volumes:
-        - app/src:/usr/src/app
-      ports:
-        - "8000:8000"
-      environment:
-        DATABASE_URL: postgres://todoapp@postgres/todos
-  database:
-    image: 'postgres'
-    env_file:
-      - database.env
-    volumes:
-      - database-data:/var/lib/postgresql/data/
-volumes:
-  database-data:
+services:      
+  web_scraper_db:
+    image: mysql:latest
+    container_name: web_scraper_db
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_USER="${MYSQL_USER}"
+    command: '--default-authentication-plugin=mysql_native_password'
