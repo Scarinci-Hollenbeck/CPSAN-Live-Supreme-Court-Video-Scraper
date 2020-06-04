@@ -4,23 +4,42 @@ cspan_url = 'https://www.c-span.org/search/?sdate=&edate=&searchtype=Videos&sort
 response = get(cspan_url)
 soup = BeautifulSoup(response.text, 'html.parser')
 
-# find the video link from video page
-def get_video_link(link):
-  video_response = get(link)
-  video_soup = BeautifulSoup(video_response.text, 'html.parser')
-  video_title = video_soup.find('h3')
-  return video_soup
-
 # scrape the full list of videos
 def get_all_videos():
-  video_list = soup.find_all('li', {'class': 'onevid'})
+  video_list_container = soup.find_all('li', {'class': 'onevid'})
+  video_list = []
 
-  for video in video_list:
+
+  for index, video in enumerate(video_list_container):
+    '''
+    retrieve the video's link
+    '''
     a = video.find('a')
-    video_link = 'https:' + a['href'], a.get_text()
-    first_video = video_link[0]
+    video_link = 'https:' + a['href'], a.get_text()[0]
+    video_link = video_link[0]
+    org = video_link.find('/video/')
+    stand_alone_video_link = video_link[:org + len('/video/')] + 'standalone/' + video_link[org + len('/video/'):]
+
+    '''
+    retrieve the video's title
+    '''
+    h3 = video.find('h3')
+
+    '''
+    retrieve the video's date
+    '''
+    time = video.find('time')
+
+    video = {
+      'id': index,
+      'title': h3.get_text(),
+      'date': time.get_text(),
+      'video_link': stand_alone_video_link
+    }
+    video_list.append(video)
   
-  print(get_video_link(first_video))
+  print(video_list)
+    
   
 
 get_all_videos()
