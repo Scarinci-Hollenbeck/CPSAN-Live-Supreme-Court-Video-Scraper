@@ -53,17 +53,16 @@ def create_app(test_config=None):
         video_list = formatted_videos
 
     else:
-      # check if video list is updated 
-      
-      # slug from latest db record
-      latest_db_video = Videos.query.first()
-      db_slug = latest_db_video.slug
+      # check if video list is updated      
 
       # slug from latest scraped record
       latest_scraped_video = scrape_latest_video()
       scraped_slug = latest_scraped_video['slug']
-      
-      if db_slug != scraped_slug:
+
+      # check if scraped slug exists in db
+      find_latest_slug_by_scraped_slug = bool(Videos.query.filter_by(slug=scraped_slug).first())
+
+      if find_latest_slug_by_scraped_slug == False:
         try:
           add_latest_video = Videos(title=latest_scraped_video['title'], date=latest_scraped_video['slug'], slug=scraped_slug, video_link=latest_scraped_video['video_link'])
           db.session.add(add_latest_video)
@@ -88,15 +87,34 @@ def create_app(test_config=None):
 
   @app.route('/supreme-court-videos/latest', methods=['GET'])
   def get_the_latest_video():
-    video = Videos.query.first()
+    # slug from latest scraped record
+    latest_scraped_video = scrape_latest_video()
+    scraped_slug = latest_scraped_video['slug']
+
+    # check if scraped slug exists in db
+    find_latest_slug_by_scraped_slug = bool(Videos.query.filter_by(slug=scraped_slug).first())
+
+    if find_latest_slug_by_scraped_slug == False:
+      try:
+          add_latest_video = Videos(title=latest_scraped_video['title'], date=latest_scraped_video['slug'], slug=scraped_slug, video_link=latest_scraped_video['video_link'])
+          db.session.add(add_latest_video)
+          db.session.commit()
+      except:
+        db.session.rollback()
+      finally:
+        db.session.close()
+        latest_video = Videos.query.filter_by(slug=scraped_slug).first()
+    else:
+      latest_video = Videos.query.filter_by(slug=scraped_slug).first()
+
     return jsonify({
       'success': True,
       'videos': {
-        'id': video.id,
-        'title': video.title,
-        'date': video.date,
-        'slug': video.slug,
-        'video_link': video.video_link
+        'id': latest_video.id,
+        'title': latest_video.title,
+        'date': latest_video.date,
+        'slug': latest_video.slug,
+        'video_link': latest_video.video_link
       }
     })
   return app
