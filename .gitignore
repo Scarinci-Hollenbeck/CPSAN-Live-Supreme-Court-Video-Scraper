@@ -3,4 +3,5 @@
 app/env
 app/.env
 app/__pycache__
+app/flaskr/__pycache__
 app/migrations
