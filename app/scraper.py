@@ -1,5 +1,8 @@
 from bs4 import BeautifulSoup
 from requests import get
+from flask import Flask, flash
+from models import Videos, db
+
 cspan_url = 'https://www.c-span.org/search/?sdate=&edate=&searchtype=Videos&sort=Most+Recent+Event&text=0&sponsorid%5B%5D=1133&formatid%5B%5D=33'
 response = get(cspan_url)
 soup = BeautifulSoup(response.text, 'html.parser')
@@ -30,17 +33,28 @@ def get_all_videos():
     '''
     time = video.find('time')
 
-    video = {
-      'id': index,
-      'title': h3.get_text(),
-      'date': time.get_text(),
-      'video_link': stand_alone_video_link
-    }
-    video_list.append(video)
-  
-  print(video_list)
+    '''
+    retrieve the video's slug
+    '''
+    slug_place = video_link.find('-1/')
+    slug = video_link[slug_place + len('-1'):]
     
-  
+    '''
+    add videos to database
+    '''
+    try:
+      new_video = Videos(title=h3.get_text(), date=time, slug=slug, video_link=stand_alone_video_link)
+      db.session.add(new_video)
+      db.session.commit()
+    except:
+      error = True
+    finally:
+      db.session.close()
+    
+    if error:
+      flash('An error occurred.', 'error')
+    else:
+      flash('A video was successfully listed!', 'success') 
 
 get_all_videos()
 # scrape the top video
