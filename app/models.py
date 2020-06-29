@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, String, Integer, create_engine
 
 db = SQLAlchemy()
-db_path = 'mysql+pymysql://root:web_scraper_root@localhost:3306/supreme_court_videos'
+db_path = 'mysql+pymysql://ptums:db$S&_H1100@localhost:3306/supreme_court_videos'
 
 def setup_db(app):
   app.config['SQLALCHEMY_DATABASE_URI'] = db_path
