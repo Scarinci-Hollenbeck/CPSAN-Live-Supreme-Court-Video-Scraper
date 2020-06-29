@@ -117,6 +117,4 @@ def create_app(test_config=None):
         'video_link': latest_video.video_link
       }
     })
- 
-  if __name__ == "__main__":
-    app.run()
+  return app
