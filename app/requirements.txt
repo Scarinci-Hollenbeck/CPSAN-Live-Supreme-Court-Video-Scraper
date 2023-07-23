@@ -8,7 +8,7 @@ click==7.1.2
 colorama==0.4.3
 distlib==0.3.0
 filelock==3.0.12
-Flask==1.1.2
+Flask==2.2.5
 Flask-Cors==3.0.8
 Flask-Migrate==2.5.3
 Flask-SQLAlchemy==2.4.3
